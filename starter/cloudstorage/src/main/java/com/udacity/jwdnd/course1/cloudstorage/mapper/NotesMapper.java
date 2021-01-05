@@ -10,7 +10,7 @@ public interface NotesMapper {
 
     @Insert("INSERT INTO NOTES (notetitle, notedescription, userid) VALUES(#{noteTitle}, #{noteDescription}, #{userId})")
     @Options(useGeneratedKeys = true, keyProperty = "noteId")
-    void insert(Notes notes);
+    int insert(Notes notes);
 
     @Select("SELECT * FROM NOTES WHERE userid= #{userId}")
     List<Notes> getAllNotesByUserId(int userId);
@@ -19,5 +19,5 @@ public interface NotesMapper {
     int delete(int noteId);
 
     @Update("UPDATE NOTES SET notetitle = #{noteTitle}, notedescription = #{noteDescription} WHERE noteid = #{noteId} AND userid = #{userId}")
-    void update(Notes notes);
+    int update(Notes notes);
 }

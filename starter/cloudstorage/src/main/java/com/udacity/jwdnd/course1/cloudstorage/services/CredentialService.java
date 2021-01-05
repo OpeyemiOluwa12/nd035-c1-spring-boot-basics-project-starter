@@ -31,13 +31,13 @@ public class CredentialService {
         return credentialsMapper.insert(credentials);
     }
 
-    public void updateCredential(Credentials credentials) {
+    public int updateCredential(Credentials credentials) {
         String key = generateKey();
         String encryptedPassword = encryptionService.encryptValue(credentials.getPassword(), key);
         credentials.setKey(key);
         credentials.setPassword(encryptedPassword);
 
-        credentialsMapper.update(credentials);
+       return credentialsMapper.update(credentials);
     }
 
     public int deleteCredential(int credentialId) {

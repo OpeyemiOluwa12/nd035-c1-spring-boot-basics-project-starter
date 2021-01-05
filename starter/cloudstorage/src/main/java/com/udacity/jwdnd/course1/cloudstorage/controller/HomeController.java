@@ -67,9 +67,9 @@ public class HomeController {
             }
         }
         if (fileUploadError == null) {
-            model.addAttribute("fileUploadSuccess", file);
+            model.addAttribute("success", file);
         } else {
-            model.addAttribute("fileUploadError", fileUploadError);
+            model.addAttribute("error", fileUploadError);
         }
 
         return "result";
@@ -81,9 +81,14 @@ public class HomeController {
     }
 
     @GetMapping("/delete-file/{fileId}")
-    public String deleteFile(@PathVariable int fileId) {
+    public String deleteFile(@PathVariable int fileId, Model model) {
         int rowsRemoved = fileService.deleteFile(fileId);
-        return "redirect:/home";
+        if (rowsRemoved < 1) {
+            model.addAttribute("error", "An error occurred while deleting this file");
+        } else {
+            model.addAttribute("success", true);
+        }
+        return "result";
     }
 
     @GetMapping("/download/{fileId}")
@@ -110,20 +115,41 @@ public class HomeController {
 
     @PostMapping("/note")
     public String saveNote(@ModelAttribute("noteForm") Notes notes, Model model) {
+        String errorMessage = null;
         notes.setUserId(commonService.getUserId());
         if (notes.getNoteId() == null) {
-            noteService.addNote(notes);
+            int rows = noteService.addNote(notes);
+            if (rows < 1) {
+                errorMessage = "An error occurred while creating a note, please try again";
+            }
         } else {
-            noteService.updateNotes(notes);
+            int rows = noteService.updateNotes(notes);
+            if (rows < 1) {
+                errorMessage = "An error occurred while updating this note please try again";
+            }
         }
-        model.addAttribute("notes", noteService.getAllNotes(commonService.getUserId()));
-        return "redirect:/home";
+        if (errorMessage == null) {
+            model.addAttribute("notes", noteService.getAllNotes(commonService.getUserId()));
+            model.addAttribute("success", true);
+        } else {
+            model.addAttribute("error", errorMessage);
+        }
+        return "result";
     }
 
     @GetMapping("/delete-note/{noteId}")
-    public String deleteNote(@PathVariable int noteId) {
+    public String deleteNote(@PathVariable int noteId, Model model) {
+        String errorMessage = null;
         int rowsRemoved = noteService.deleteNote(noteId);
-        return "redirect:/home";
+        if (rowsRemoved < 1) {
+            errorMessage = "An error occurred while deleting this note please try again";
+        }
+        if (errorMessage == null) {
+            model.addAttribute("success", true);
+        } else {
+            model.addAttribute("error", errorMessage);
+        }
+        return "result";
     }
 
 
@@ -134,19 +160,36 @@ public class HomeController {
 
     @PostMapping("/credentials")
     public String saveCredential(@ModelAttribute("credentialForm") Credentials credentials, Model model) {
+        String errorMessage = null;
         credentials.setUserId(commonService.getUserId());
         if (credentials.getCredentialId() == null) {
-            credentialService.addCredential(credentials);
+            int rowsAdded = credentialService.addCredential(credentials);
+            if (rowsAdded < 1) {
+                errorMessage = "An error occurred while adding this credential, please try again";
+            }
         } else {
-            credentialService.updateCredential(credentials);
+            int rowsUpdated = credentialService.updateCredential(credentials);
+            if (rowsUpdated < 1) {
+                errorMessage = "An error occurred while updating this credential, please try again";
+            }
         }
-        model.addAttribute("credentials", credentialService.getAllCredentials(commonService.getUserId()));
-        return "redirect:/home";
+        if (errorMessage == null) {
+            model.addAttribute("credentials", credentialService.getAllCredentials(commonService.getUserId()));
+            model.addAttribute("success", true);
+        } else {
+            model.addAttribute("error", errorMessage);
+        }
+        return "result";
     }
 
     @GetMapping("/delete-credential/{credentialId}")
-    public String deleteCredential(@PathVariable int credentialId) {
+    public String deleteCredential(@PathVariable int credentialId, Model model) {
         int rowsRemoved = credentialService.deleteCredential(credentialId);
-        return "redirect:/home";
+        if (rowsRemoved < 1) {
+            model.addAttribute("error", "An error occurred while deleting this note");
+        } else {
+            model.addAttribute("success", true);
+        }
+        return "result";
     }
 }
